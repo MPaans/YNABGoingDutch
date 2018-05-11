@@ -34,14 +34,25 @@
               </div>
             </form>
           </p>
-          <p>
-            Supported: RaboBank, ING
-          </p>
+          <div class="form-group">
+            <label for="force-bank">Force Bank (Only recommended when auto-detect doesn't work):</label>
+            <select class="form-control" id="force-bank">
+              <option value="AUTO" selected="selected">Don't Force (Recommended)</option>
+              <option value="RABO">RaboBank</option>
+              <option value="ING">ING Bank</option>
+            </select>
+            <p>
+              Supported: RaboBank, ING
+            </p>
+          </div>
         </div>
+
 
         <div class="mastfoot">
           <div class="inner">
-            <p>Find the source on <a href="https://github.com/DanielsWrath/RABO">GitHub</a></p>
+            <p>Find the source on
+              <a href="https://github.com/DanielsWrath/YNABGoingDutch">GitHub</a>
+            </p>
           </div>
         </div>
 
@@ -57,10 +68,7 @@
   <script src="js/dropzone/dropzone.min.js"></script>
   <script src="js/toastr/toastr.min.js"></script>
   <script src="js/convert.js"></script>
-  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
-    crossorigin="anonymous"></script>
+  <script src="js/tether.min.js"></script>
   <script src="js/bootstrap/bootstrap.min.js"></script>
 </body>
 

@@ -14,8 +14,7 @@ const parseFile = function (file) {
             converter.errorHandle(error, file);
         },
         complete: function (results, file) {
-            toastr.success(file.name + " was succesfully parsed");
-            converter.complete(results);
+            converter.complete(file, results);
         }
     });
 };
@@ -256,12 +255,14 @@ BankMapping.recognizeBank = function (header) {
         if (areArraysEqual(header, BankMapping.mappings[key].header))
             return new BankMapping(key);
     }
-    alert("Could not be parsed");
+
+    return null;
 };
 
 StreamConverter = function () {
     const accounts = {};
     let map = null;
+    let unparsable = false;
 
     const isErrorIndex = function (index, errors) {
         if (errors[index] != null)
@@ -287,17 +288,57 @@ StreamConverter = function () {
         accounts[account].addLine(dataRow);
     };
 
-    this.convert = function (results, parser) {
-        if (!map) {
-            map = BankMapping.recognizeBank(results.meta.fields);
-            toastr.info("Bank recognized as " + map.getBank());
+    const tryCatchLine = (line) => {
+        try {
+            return convertLine(line);
+        } catch (error) {
+            tryCatchLine.errorObj.e = error;
+            return tryCatchLine.errorObj;
         }
+    };
 
-        for (let index = 0, line; line = results.data[index]; ++index) {
-            if (isErrorIndex(index, results.errors))
-                continue;
+    tryCatchLine.errorObj = {
+        e: null
+    };
 
-            convertLine(line);
+    this.convert = function (results, parser) {
+        if (!unparsable) {
+            if (!map) {
+                let select = document.getElementById("force-bank");
+                let selectedValue = select.options[select.selectedIndex].value;
+
+                switch (selectedValue) {
+                    case "RABO":
+                        map = new BankMapping(BankMapping.RABO);
+                        break;
+                    case "ING":
+                        map = new BankMapping(BankMapping.ING);
+                        break;
+                    default:
+                        map = BankMapping.recognizeBank(results.meta.fields);
+
+                        if (!map) {
+                            toastr.error("Bank could not be recognized, try forcing the bank");
+                            unparsable = true;
+                        } else
+                            toastr.info("Bank recognized as " + map.getBank());
+                }
+            }
+
+            for (let index = 0, line; line = results.data[index]; ++index) {
+                if (isErrorIndex(index, results.errors)) {
+                    toastr.info("Line was ignored because of an error");
+                    continue;
+                }
+
+                let result = tryCatchLine(line);
+                if (result == tryCatchLine.errorObj) {
+                    let e = result.e;
+
+                    toastr.error("An error occurred: " + e);
+                    unparsable = true;
+                }
+            }
         }
     };
 
@@ -305,10 +346,15 @@ StreamConverter = function () {
         toast.error("An error occured in file " + file + ": " + error);
     };
 
-    this.complete = function (results) {
-        let keys = Object.keys(accounts);
-        for (let index = 0, account; account = accounts[keys[index]]; ++index) {
-            account.downloadCSV();
+    this.complete = function (file, results) {
+        if (!unparsable) {
+            toastr.success(file.filname + " was succesfully parsed");
+
+            let keys = Object.keys(accounts);
+
+            for (let index = 0, account; account = accounts[keys[index]]; ++index) {
+                //account.downloadCSV();
+            }
         }
     };
 };
