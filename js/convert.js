@@ -36,12 +36,15 @@ Dropzone.options.dropzone = {
             done("Could not parse file " + file.name);
         }
     },
-    acceptedMimeTypes: "text/csv",
+    acceptedMimeTypes: ".csv",
     dictDefaultMessage: "Drag csv's here or click here to select the files from your device",
     complete: function (file) {
         this.removeFile(file);
     },
-    addRemoveLinks: false
+    addRemoveLinks: false,
+    createImageThumbnails: false
+
+
 };
 
 const parse = () => {
@@ -353,7 +356,7 @@ StreamConverter = function () {
             let keys = Object.keys(accounts);
 
             for (let index = 0, account; account = accounts[keys[index]]; ++index) {
-                //account.downloadCSV();
+                account.downloadCSV();
             }
         }
     };
