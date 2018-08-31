@@ -94,15 +94,28 @@ const AccountData = function (accountNumber) {
     };
 };
 
-const Field = function (fieldList, splits, splitsKeep) {
+const Field = function (fieldList, splitsKeep) {
+    let splits = [];
+
     const getFields = function (line) {
         let returnLine = "";
 
         for (let index = 0, field; field = fieldList[index]; ++index) {
             returnLine += line[field];
+            splits = splits.concat(getSplits(field));
         }
 
         return returnLine;
+    };
+
+    const getSplits = function (field) {
+        let splits = BankMapping.mappings[this.key].splits[field];
+        if (Array.isArray(splits)) {
+            return splits;
+        }
+        else {
+            return [];
+        }
     };
 
     this.getLine = function (line) {
@@ -251,15 +264,13 @@ BankMapping.mappings = {
     },
     ING: {
         header: ["Datum", "Naam / Omschrijving", "Rekening", "Tegenrekening", "Code", "Af Bij", "Bedrag (EUR)", "MutatieSoort", "Mededelingen"],
+        splits: {"Mededelingen": ['Transactie', 'Term', 'Pasvolgnr', 'Omschrijving', 'IBAN', 'Kenmerk', 'Machtiging ID', 'Incassant ID']},
         account: new Field(["Rekening"]),
         date: new Field(["Datum"]),
         dateFormat: "YYYYMMDD",
         payee: new Field(["Naam / Omschrijving"]),
         category: new Field([]),
-        memo: new Field(
-            ["Mededelingen"],
-            ['Transactie', 'Term', 'Pasvolgnr', 'Omschrijving', 'IBAN', 'Kenmerk', 'Machtiging ID', 'Incassant ID'],
-            ['Transactie', 'Term', 'Omschrijving', 'IBAN', 'Kenmerk']),
+        memo: new Field(["Mededelingen"], ['Transactie', 'Term', 'Omschrijving', 'IBAN', 'Kenmerk']),
         outflow: new Field(["Bedrag (EUR)"]),
         inflow: new Field(["Bedrag (EUR)"]),
         positiveIndicator: "Bij",
