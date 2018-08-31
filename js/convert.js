@@ -95,31 +95,21 @@ const AccountData = function (accountNumber) {
 };
 
 const Field = function (fieldList, splitsKeep) {
-    let splits = [];
-
     const getFields = function (line) {
         let returnLine = "";
 
         for (let index = 0, field; field = fieldList[index]; ++index) {
-            returnLine += line[field];
-            splits = splits.concat(getSplits(field));
+            if (returnLine !== "") {
+                returnLine += " ";
+            }
+            returnLine += getValues(field, line[field]);
         }
 
         return returnLine;
     };
 
-    const getSplits = function (field) {
+    const getValues = function (field, text) {
         let splits = BankMapping.mappings[this.key].splits[field];
-        if (Array.isArray(splits)) {
-            return splits;
-        }
-        else {
-            return [];
-        }
-    };
-
-    this.getLine = function (line) {
-        let text = getFields(line);
         if (Array.isArray(splits) && Array.isArray(splitsKeep)) {
             for (let index in splits) {
                 text = text.replace(splits[index] + ":", "|" + splits[index] + ":");
@@ -146,9 +136,15 @@ const Field = function (fieldList, splitsKeep) {
                 }
                 textKeep += items[splitsKeep[index]];
             }
-            text = textKeep;
+            return textKeep;
         }
-        return text;
+        else {
+            return text;
+        }
+    };
+
+    this.getLine = function (line) {
+        return getFields(line);
     };
 };
 
