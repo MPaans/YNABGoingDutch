@@ -159,16 +159,35 @@ const BankMapping = function (bank) {
 
     this.getDate = function (line) {
         const dateField = BankMapping.mappings[bank].date;
-        const text = dateField.getLine(line);
-        const dateFormat = BankMapping.mappings[bank].dateFormat;
+        let text = dateField.getLine(line);
+        let dateFormat = BankMapping.mappings[bank].dateFormat;
 
-        if (dateFormat == BankMapping.DEFAULT_DATE_FORMAT)
+        if (dateFormat == BankMapping.DEFAULT_DATE_FORMAT) {
             return text;
+        }
+
+        if (!Array.isArray(dateFormat)) {
+            dateFormat = [dateFormat];
+        }
+
+        for (let index in dateFormat) {
+            let dateRegExp = dateFormat[index];
+            dateRegExp = dateRegExp.replace('YYYY', '[1,2][9,0][9,0,1,2][0-9]');
+            dateRegExp = dateRegExp.replace('MM', '[0,1][0-9]');
+            dateRegExp = dateRegExp.replace('DD', '[0,1,2,3][0-9]');
+
+            let re = new RegExp(dateRegExp);
+            let datePosition = text.match(re);
+            if (datePosition !== null) {
+                text = text.substring(datePosition.index, datePosition.index + dateFormat[index].length);
+                dateFormat = dateFormat[index];
+                break;
+            }
+        }
 
         let year = "";
         let month = "";
         let day = "";
-        console.log(dateFormat);
         for (let index = 0; index < dateFormat.length; ++index) {
             switch (dateFormat.charAt(index)) {
                 case "Y":
@@ -262,8 +281,8 @@ BankMapping.mappings = {
         header: ["Datum", "Naam / Omschrijving", "Rekening", "Tegenrekening", "Code", "Af Bij", "Bedrag (EUR)", "MutatieSoort", "Mededelingen"],
         splits: {"Mededelingen": ['Transactie', 'Term', 'Pasvolgnr', 'Omschrijving', 'IBAN', 'Kenmerk', 'Machtiging ID', 'Incassant ID']},
         account: new Field(["Rekening"]),
-        date: new Field(["Datum"]),
-        dateFormat: "YYYYMMDD",
+        date: new Field(["Mededelingen", "Datum"], ["Pasvolgnr"]),
+        dateFormat: ["DD-MM-YYYY", "YYYYMMDD"],
         payee: new Field(["Naam / Omschrijving"]),
         category: new Field([]),
         memo: new Field(["Mededelingen"], ['Transactie', 'Term', 'Omschrijving', 'IBAN', 'Kenmerk']),
