@@ -278,7 +278,7 @@ BankMapping.mappings = {
         negativeIndicator: "-",
     },
     ING: {
-        header: ["Datum", "Naam / Omschrijving", "Rekening", "Tegenrekening", "Code", "Af Bij", "Bedrag (EUR)", "MutatieSoort", "Mededelingen"],
+        header: ["Datum", "Naam / Omschrijving", "Rekening", "Tegenrekening", "Code", "Af Bij", "Bedrag (EUR)", "Mutatiesoort", "Mededelingen"],
         splits: {"Mededelingen": ['Transactie', 'Term', 'Pasvolgnr', 'Omschrijving', 'IBAN', 'Kenmerk', 'Machtiging ID', 'Incassant ID']},
         account: new Field(["Rekening"]),
         date: new Field(["Mededelingen", "Datum"], ["Pasvolgnr"]),
